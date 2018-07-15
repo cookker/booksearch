@@ -9,9 +9,11 @@
             <div>
                 <h1>책 검색 서비스</h1>
 
+                <div><input class="button" type="button" v-on:click="addBook" value="책 추가" /></div>
                 <div>
-                    <input class="search" type="text" v-model="title" v-on:keyup.enter="fetchBooks" placeholder="검색할 책 제목을 입력하세요"/>
-                    <input class="button-primary" type="button" v-on:click="fetchBooks" value="검색" />
+                    <input class="search" type="text" v-model="title" v-on:keyup.enter="searchBooks" placeholder="검색할 책 제목을 입력하세요"/>
+                    <input class="button-primary" type="button" v-on:click="searchBooks" value="검색" />
+
 
                     <button id="show-modal" @click="showModal = true">최근검색</button>
                     <modal v-if="showModal" @close="showModal = false">
@@ -40,7 +42,7 @@
                 <div>
                 <ul>
                     <li v-for="book in books">
-                        <h3><a :href="getLink(book)">{{book.title}}</a></h3>
+                        <h3><a href="" @click.prevent="getLink(book)">{{book.title}}</a></h3>
                         <h6>저자: {{book.authors}}</h6>
                         <hr/>
                     </li>
@@ -110,7 +112,6 @@
             sortName: 'registerDatetime',
             histories:[],
             showModal: false,
-            test:'',
         },
         mounted(){
             this.fetchBooks()
@@ -134,6 +135,7 @@
         },
         methods: {
             fetchBooks(){
+                this.initPage()
                 axios
                     .get("/api/book-pages?title=" + this.title
                         + '&page=' + (this.currentPage-1)
@@ -141,36 +143,57 @@
                         + '&sortName=' + this.sortName
                     )
                     .then(function(response){
-                        console.log(response.data)
-                    this.books = response.data.contents
-                    this.perPage = response.data.perPage
-                    this.totalCount = response.data.totalCount
-                    this.saveKeyword()
-                }.bind(this))
+                        this.syncPage(response)
+                    }.bind(this))
+            },
+            initPage(){
+                this.currentPage = 1
+                var tmp = this.computedUsers
+            },
+            searchBooks(){
+                this.checkLogin()
+                this.fetchBooks()
             },
             getLink(book){
-                return '/books/' + book.id
-            },
-            addBook(){
-                return '/bookform'
+                if (!this.checkCookie()) {
+                    this.toLogin()
+                }else{
+                    window.location = 'books/' + book.id
+                }
             },
             getDatetime(datetime){
                 return datetime.substring(0, 10)
             },
             setPage(n) {
                 this.currentPage = n
-                this.fetchBooks()
+                // this.searchBooks()
+                axios
+                    .get("/api/book-pages?title=" + this.title
+                        + '&page=' + (this.currentPage-1)
+                        + '&sortOption=' + this.sortOption
+                        + '&sortName=' + this.sortName
+                    )
+                    .then(function(response){
+                        this.syncPage(response)
+                    }.bind(this))
+            },
+            syncPage(response){
+                console.log(response.data)
+                this.books = response.data.contents
+                this.perPage = response.data.perPage
+                this.totalCount = response.data.totalCount
+                this.saveKeyword()
             },
             saveKeyword(){
               localStorage.setItem(this.title, this.title)
               this.fetchHistory()
             },
             fetchHistory() {
-                console.log(localStorage.length)
                 if (localStorage.length > 0) {
                     this.histories = []
                     for (var i = 0; i < localStorage.length; i++) {
-                        if (localStorage.key(i) !== 'loglevel:webpack-dev-server' && localStorage.key(i) !== 'test') {
+                        if (localStorage.key(i) !== 'loglevel:webpack-dev-server'
+                            && localStorage.key(i) !== 'test') {
                             this.histories.push(localStorage.key(i));
                         }
                     }
@@ -185,6 +208,26 @@
                 this.histories = []
                 localStorage.clear()
             },
+            checkLogin(){
+                if(!this.checkCookie()){
+                    this.toLogin()
+                }
+            },
+            checkCookie() {
+                var cookie = getCookie('access_token');
+                return cookie
+            },
+            toLogin() {
+                alert('로그인을 해야합니다.')
+                window.location = 'login'
+            },
+            addBook(){
+                if (!this.checkCookie()) {
+                    this.toLogin()
+                }else{
+                    window.location = 'bookform'
+                }
+            }
         }
     });
 
