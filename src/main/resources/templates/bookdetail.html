@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/header :: header('책 상세')" />
+<body>
+<div id="root">
+    <div th:replace="fragments/nav :: nav"></div>
+    <div class="container">
+        <div class="row">
+            <div>
+                <h1>책 상세</h1>
+
+                <input type="checkbox" id="bookmarked" v-model="bookmarked" v-on:click="addBookmark"/>
+                <label class="radiolabel" for="bookmarked">책갈피</label>
+
+                <input class="button-primary" type="button" v-on:click="removeBook" value="삭제" />
+                <br/>
+
+                <div>
+                    <fieldset>
+                        <label for="title" class="label">책 제목</label>
+                        <input type="text" v-model="title"  id="title" class="input" readonly="readonly"/>
+
+                        <label for="contents" class="label">소개</label>
+                        <input type="text" v-model="contents" id="contents" class="input" readonly="readonly"/>
+
+                        <label for="url" class="label">다음 책 링크</label>
+                        <input type="text" v-model="url" id="url" readonly="readonly"/>
+
+                        <label for="isbn" class="label">ISBN 번호</label>
+                        <input type="text" v-model="isbn" placeholder="공백을 구분자로 입력하세요"  id="isbn" class="input" readonly="readonly"/>
+
+                        <label for="datetime" class="label">도서 출판날짜</label>
+                        <input type="text" v-model="datetime"  id="datetime" class="input" readonly="readonly"/>
+
+                        <label for="authors" class="label">저자 리스트</label>
+                        <input type="text" v-model="authors" placeholder="콤마를 구분자로 입력하세요" id="authors" class="input" readonly="readonly"/>
+
+                        <label for="publisher" class="label">출판사</label>
+                        <input type="text" v-model="publisher" id="publisher" class="input" readonly="readonly"/>
+
+                        <label for="translators" class="label">번역가</label>
+                        <input type="text" v-model="translators" placeholder="콤마를 구분자로 입력하세요" id="translators" class="input" readonly="readonly"/>
+
+                        <label for="price" class="label">도서 정가</label>
+                        <input type="number" v-model="price" id="price" class="input" readonly="readonly"/>
+
+                        <label for="salePrice" class="label">도서 판매가</label>
+                        <input type="number" v-model="salePrice" id="salePrice" class="input" readonly="readonly"/>
+
+                        <label for="saleYn" class="label">판매여부</label>
+                        <input type="text" v-model="saleYn" placeholder="Y or N" id="saleYn" class="input" readonly="readonly"/>
+
+                        <label for="category" class="label">카테고리 정보</label>
+                        <input type="text" v-model="category" id="category" class="input" readonly="readonly"/>
+
+                        <label for="thumbnail" class="label">표지 썸네일</label>
+                        <input type="text" v-model="thumbnail" id="thumbnail" class="input" readonly="readonly"/>
+
+                        <label for="barcode" class="label">바코드 정보</label>
+                        <input type="text" v-model="barcode" id="barcode" class="input" readonly="readonly"/>
+
+                        <label for="ebookBarcode"  class="label">전자책 바코드 정보</label>
+                        <input type="text" v-model="ebookBarcode" id="ebookBarcode" class="input" readonly="readonly"/>
+
+                        <label for="status" class="label">상태 정보</label>
+                        <input type="text" v-model="status" placeholder="정상, 품절, 절판 등" id="status" class="input" readonly="readonly"/>
+
+                    </fieldset>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<div th:replace="fragments/footer :: foot"></div>
+
+<script>
+    var app = new Vue({
+        el: '#root',
+        data : {
+            title: '',
+            contents: '',
+            url: '',
+            isbn: '',
+            datetime: '',
+            authors: '',
+            publisher: '',
+            translators: '',
+            price: '',
+            salePrice: '',
+            saleYn: '',
+            category: '',
+            thumbnail: '',
+            barcode: '',
+            ebookBarcode: '',
+            status: '',
+            bookmarked: false,
+            bookdel: false,
+        },
+        computed: {
+          path(){
+              var pathName = window.location.pathname;
+              var paths = pathName.split(/[\/]/);
+              return paths[paths.length-1];
+          }
+        },
+        mounted(){
+            this.fetchBook();
+        },
+
+        methods: {
+            removeBook(){
+                var deleteYn = confirm('책정보를 삭제하시겠습니까?');
+                if(!deleteYn) return
+
+                console.log('delete' + this.path)
+                axios.delete("/api/books/"+this.path)
+                    .then(function(response){
+                        console.log(response)
+                        alert('삭제하였습니다.')
+                        window.location.replace("/")
+                    })
+            },
+            addBookmark(){
+                axios.post("/api/bookmark/"+this.path+"?bookmarked="+!this.bookmarked)
+                    .then(function(response){
+                        console.log(response)
+                    })
+            },
+            fetchBook(){
+                axios
+                    .get("/api/books/"+this.path)
+                    .then(function(response){
+                        console.log(response.data)
+                        this.fillBook(response.data)
+                    }.bind(this))
+            },
+            fillBook(data){
+                this.title = data.title
+                this.contents = data.contents
+                this.url = data.url
+                this.isbn = data.isbn
+                this.datetime = data.datetime
+                this.authors = data.authors
+                this.publisher = data.publisher
+                this.translators = data.translators
+                this.price = data.price
+                this.salePrice = data.salePrice
+                this.saleYn = data.saleYn
+                this.category = data.category
+                this.thumbnail = data.thumbnail
+                this.barcode = data.barcode
+                this.ebookBarcode = data.ebookBarcode
+                this.status = data.status
+            }
+        },
+    });
+
+
+
+</script>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/header :: header('책 검색')" />
+<body>
+<div id="root">
+    <div th:replace="fragments/nav :: nav"></div>
+    <div class="container">
+        <div class="row">
+            <div>
+                <h1>책 검색 서비스</h1>
+
+                <div>
+                    <input class="search" type="text" v-model="title" v-on:keyup.enter="fetchBooks" placeholder="검색할 책 제목을 입력하세요"/>
+                    <input class="button-primary" type="button" v-on:click="fetchBooks" value="검색" />
+
+                    <button id="show-modal" @click="showModal = true">최근검색</button>
+                    <modal v-if="showModal" @close="showModal = false">
+                        <h3 slot="header" >최근 검색</h3>
+                        <h4 slot="body">
+                            <div v-for="h in histories">
+                                <span v-on:click="searchByHistory(h)">{{h}}</span>
+                            </div>
+                        </h4>
+                    </modal>
+
+                    <p>
+                        <select v-model="sortName">
+                            <option value="title">제목</option>
+                            <option value="registerDatetime">등록일</option>
+                            <option value="datetime">출판일</option>
+                        </select>
+
+                        <select v-model="sortOption" >
+                            <option value="DESC">내림차순</option>
+                            <option value="ASC">오름차순</option>
+                        </select>
+                    </p>
+                    <br/>
+                </div>
+                <div>
+                <ul>
+                    <li v-for="book in books">
+                        <h3><a :href="getLink(book)">{{book.title}}</a></h3>
+                        <h6>저자: {{book.authors}}</h6>
+                        <hr/>
+                    </li>
+                </ul>
+                    <ul>
+                        <li class="pageLi" v-for="n in numOfPages"><a href="" @click.prevent="setPage(n)">{{n}}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<div>
+    <script type="text/x-template" id="modal-template">
+        <transition name="modal">
+            <div class="modal-mask">
+                <div class="modal-wrapper">
+                    <div class="modal-container">
+
+                        <div class="modal-header">
+                            <slot name="header">
+                                default header
+                            </slot>
+                        </div>
+
+                        <div class="modal-body">
+                            <slot name="body">
+                                default body
+                            </slot>
+                        </div>
+
+                        <div class="modal-footer">
+                            <slot name="footer">
+                                <button @click="$emit('close')">
+                                    OK
+                                </button>
+                                <br/>
+                            </slot>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </script>
+
+
+</div>
+
+<div th:replace="fragments/footer :: foot"></div>
+
+<script>
+
+    Vue.component('modal', {
+        template: '#modal-template'
+    })
+
+    var app = new Vue({
+        el: '#root',
+        data : {
+            title:'',
+            books: [],
+            currentPage: 1,
+            perPage: 1,
+            totalCount: 1,
+            sortOption: 'DESC',
+            sortName: 'title',
+            histories:[],
+            showModal: false,
+            test:'',
+        },
+        mounted(){
+            this.fetchBooks()
+            this.clearAllHistory()
+        },
+        computed: {
+            offset() {
+                return ((this.currentPage - 1) * this.perPage)
+            },
+            limit() {
+                return (this.offset + this.perPage)
+            },
+            numOfPages() {
+                return Math.ceil(this.totalCount / this.perPage)
+            },
+            computedUsers() {
+                if (this.offset > this.books.length) {
+                    this.currentPage = this.numOfPages
+                }
+                return this.books.slice(this.offset, this.limit)
+            }
+        },
+        methods: {
+            fetchBooks(){
+                axios
+                    .get("/api/book-pages?title=" + this.title
+                        + '&page=' + (this.currentPage-1)
+                        + '&sortOption=' + this.sortOption
+                        + '&sortName=' + this.sortName
+                    )
+                    .then(function(response){
+                        console.log(response.data)
+                    this.books = response.data.contents
+                    this.perPage = response.data.perPage
+                    this.totalCount = response.data.totalCount
+                    this.saveKeyword()
+                }.bind(this))
+            },
+            getLink(book){
+                return '/books/' + book.id
+            },
+            addBook(){
+                return '/bookform'
+            },
+            getDatetime(datetime){
+                return datetime.substring(0, 10)
+            },
+            setPage(n) {
+                this.currentPage = n
+                this.fetchBooks()
+            },
+            saveKeyword(){
+              localStorage.setItem(this.title, this.title)
+              this.fetchHistory()
+            },
+            fetchHistory() {
+                console.log(localStorage.length)
+                if (localStorage.length > 0) {
+                    this.histories = []
+                    for (var i = 0; i < localStorage.length; i++) {
+                        if (localStorage.key(i) !== 'loglevel:webpack-dev-server' && localStorage.key(i) !== 'test') {
+                            this.histories.push(localStorage.key(i));
+                        }
+                    }
+                }
+            },
+            searchByHistory(history){
+                this.title = history
+                this.showModal = false
+                return
+            },
+            clearAllHistory() {
+                this.histories = []
+                localStorage.clear()
+            },
+        }
+    });
+
+
+
+</script>
+</html>

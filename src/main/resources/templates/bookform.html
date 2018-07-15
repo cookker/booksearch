@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/header :: header('책 정보 추가')" />
+<body>
+<div id="root">
+    <div th:replace="fragments/nav :: nav"></div>
+    <div class="container">
+        <div class="row">
+            <div class="twelve columns">
+                <h1>책 정보 추가</h1>
+
+                <div>
+                    <form v-on:submit.prevent="onSubmit">
+                        <fieldset>
+                            <label for="title" class="label">책 제목</label>
+                            <input type="text" v-model="title"  id="title" class="input"/>
+
+                            <label for="contents" class="label">소개</label>
+                            <input type="text" v-model="contents" id="contents" class="input"/>
+
+                            <label for="url" class="label">다음 책 링크</label>
+                            <input type="text" v-model="url" id="url"/>
+
+                            <label for="isbn" class="label">ISBN 번호</label>
+                            <input type="text" v-model="isbn" placeholder="공백을 구분자로 입력하세요"  id="isbn" class="input"/>
+
+                            <label for="datetime" class="label">도서 출판날짜</label>
+                            <input type="text" v-model="datetime"  id="datetime" class="input"/>
+
+                            <label for="authors" class="label">저자 리스트</label>
+                            <input type="text" v-model="authors" placeholder="콤마를 구분자로 입력하세요" id="authors" class="input"/>
+
+                            <label for="publisher" class="label">출판사</label>
+                            <input type="text" v-model="publisher" id="publisher" class="input"/>
+
+                            <label for="translators" class="label">번역가</label>
+                            <input type="text" v-model="translators" placeholder="콤마를 구분자로 입력하세요" id="translators" class="input"/>
+
+                            <label for="price" class="label">도서 정가</label>
+                            <input type="number" v-model="price" id="price" class="input"/>
+
+                            <label for="salePrice" class="label">도서 판매가</label>
+                            <input type="number" v-model="salePrice" id="salePrice" class="input"/>
+
+                            <label for="saleYn" class="label">판매여부</label>
+                            <input type="text" v-model="saleYn" placeholder="Y or N" id="saleYn" class="input"/>
+
+                            <label for="category" class="label">카테고리 정보</label>
+                            <input type="text" v-model="category" id="category" class="input"/>
+
+                            <label for="thumbnail" class="label">표지 썸네일</label>
+                            <input type="text" v-model="thumbnail" id="thumbnail" class="input"/>
+
+                            <label for="barcode" class="label">바코드 정보</label>
+                            <input type="text" v-model="barcode" id="barcode" class="input"/>
+
+                            <label for="ebookBarcode"  class="label">전자책 바코드 정보</label>
+                            <input type="text" v-model="ebookBarcode" id="ebookBarcode" class="input"/>
+
+                            <label for="status" class="label">상태 정보</label>
+                            <input type="text" v-model="status" placeholder="정상, 품절, 절판 등" id="status" class="input"/>
+
+                        </fieldset>
+                        <button>저장</button>
+                        <!--<label for="bookmakred">북마크</label>-->
+                        <!--<input type="text" v-model="bookmakred" placeholder="책 소개를 입력하세요" id="bookmakred"/>-->
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<div th:replace="fragments/footer :: foot"></div>
+
+<script>
+    var app = new Vue({
+        el: '#root',
+        data : {
+            title: '',
+            contents: '',
+            url: '',
+            isbn: '',
+            datetime: '',
+            authors: '',
+            publisher: '',
+            translators: '',
+            price: '',
+            salePrice: '',
+            saleYn: '',
+            category: '',
+            thumbnail: '',
+            barcode: '',
+            ebookBarcode: '',
+            status: '',
+        },
+        methods: {
+            onSubmit(){
+                axios({
+                    method:'post',
+                    url:'api/book',
+                    data: {
+                        title: this.title,
+                        contents: this.contents,
+                        url: this.url,
+                        isbn: this.isbn,
+                        datetime: this.datetime,
+                        authors: this.authors,
+                        publisher: this.publisher,
+                        translators: this.translators,
+                        price: this.price,
+                        salePrice: this.salePrice,
+                        saleYn: this.saleYn,
+                        category: this.category,
+                        thumbnail: this.thumbnail,
+                        barcode: this.barcode,
+                        ebookBarcode: this.ebookBarcode,
+                        status: this.status,
+                    }
+                }).then(function (value) {
+                    console.log('end', value)
+                    document.location.replace("/")
+                }.bind(this));
+            }
+        }
+    });
+</script>
+</html>
