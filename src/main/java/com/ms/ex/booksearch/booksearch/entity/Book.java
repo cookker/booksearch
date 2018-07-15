@@ -110,6 +110,7 @@ public class Book extends AbstractTimestamp{
         this.publisher = bookDto.getPublisher();
         this.translators = SplitUtils.split(bookDto.getTranslators());
         this.price = bookDto.getPrice();
+        this.salePrice = bookDto.getSalePrice();
         this.saleYn = BooleanYn.of(bookDto.getSaleYn());
         this.category = bookDto.getCategory();
         this.thumbnail = bookDto.getThumbnail();

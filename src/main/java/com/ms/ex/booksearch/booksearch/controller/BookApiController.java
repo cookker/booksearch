@@ -21,7 +21,7 @@ public class BookApiController {
 
     @GetMapping("/books")
     public List<Book> getBookList(@RequestParam("title") String title,
-                                  @RequestParam(value = "sortName", defaultValue = "title", required = false) String sortName,
+                                  @RequestParam(value = "sortName", defaultValue = "registerDatetime", required = false) String sortName,
                                   @RequestParam(value = "sortOption", defaultValue = "desc", required = false) String sortOption,
                                   @RequestParam(defaultValue = "0", required = false) int page){
         return bookService.getBookList(title, sortName, sortOption, page).getContent();
@@ -29,7 +29,7 @@ public class BookApiController {
 
     @GetMapping("/book-pages")
     public PageDto<Book> getBookPage(@RequestParam(value = "title", defaultValue = "", required = false) String title,
-                                     @RequestParam(value = "sortName", defaultValue = "title", required = false) String sortName,
+                                     @RequestParam(value = "sortName", defaultValue = "registerDatetime", required = false) String sortName,
                                      @RequestParam(value = "sortOption", defaultValue = "desc", required = false) String sortOption,
                                      @RequestParam(value = "page", defaultValue = "0", required = false) int page){
         Page<Book> bookPage = bookService.getBookList(title, sortName, sortOption, page);

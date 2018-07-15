@@ -25,7 +25,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.antMatcher("/**")
                 .authorizeRequests()
                 .antMatchers("/",
-                        "/me",
                         "/h2-console/**",
                         "/login/**",
                         "/js/**",
@@ -48,6 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                             "/", "/home", "/register", "/login", "/h2-console/**", "/getUsername"
                     ).permitAll()
                     .antMatchers("/oauth/**").hasAuthority("USER")
+                    .antMatchers("/books/**").hasAuthority("USER")
                     .anyRequest().authenticated();
         }
     }

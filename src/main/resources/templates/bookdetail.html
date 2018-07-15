@@ -24,7 +24,7 @@
                         <input type="text" v-model="contents" id="contents" class="input" readonly="readonly"/>
 
                         <label for="url" class="label">다음 책 링크</label>
-                        <input type="text" v-model="url" id="url" readonly="readonly"/>
+                        <input type="text" v-model="url" id="url" class="input" readonly="readonly"/>
 
                         <label for="isbn" class="label">ISBN 번호</label>
                         <input type="text" v-model="isbn" placeholder="공백을 구분자로 입력하세요"  id="isbn" class="input" readonly="readonly"/>
@@ -154,6 +154,7 @@
                 this.barcode = data.barcode
                 this.ebookBarcode = data.ebookBarcode
                 this.status = data.status
+                this.bookmarked = data.bookmarked == 'Y' ? true : false
             }
         },
     });

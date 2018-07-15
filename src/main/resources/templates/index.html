@@ -107,14 +107,13 @@
             perPage: 1,
             totalCount: 1,
             sortOption: 'DESC',
-            sortName: 'title',
+            sortName: 'registerDatetime',
             histories:[],
             showModal: false,
             test:'',
         },
         mounted(){
             this.fetchBooks()
-            this.clearAllHistory()
         },
         computed: {
             offset() {

@@ -12,7 +12,8 @@
                     <label for="username">Id</label>
                     <input v-model="username" class="u-full-width" type="text" placeholder="id는 admin" id="username"/>
                     <label for="password">Password</label>
-                    <input v-model="password" class="u-full-width" type="password" id="password" placeholder="password는 1234"/>
+                    <input v-model="password" class="u-full-width" type="password" id="password" placeholder="password는 1234"
+                           v-on:keyup.enter="login"/>
                     <input class="u-full-width button-primary" type="submit" v-on:click="login" value="Submit" />
                 </div>
             </div>
